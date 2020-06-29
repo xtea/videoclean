@@ -3,6 +3,8 @@ package io.xtea.videoclean;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import io.xtea.videoclean.bean.ApiResult;
+
 import org.junit.Test;
 
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class DouyinTest {
 
     @Test
     public void testGet() throws Exception {
-        Douyin.Result ans = Douyin.getVideoUrl("6519691519585160455");
+        ApiResult ans = Douyin.fetchVideoScheme("6519691519585160455");
         System.out.println(ans);
         assertNotNull(ans);
     }

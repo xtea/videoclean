@@ -1,7 +1,7 @@
 package io.xtea.videoclean;
 
 import com.google.gson.Gson;
-import io.xtea.videoclean.bean.ApiBean;
+import io.xtea.videoclean.bean.ApiResult;
 import io.xtea.videoclean.bean.ItemList;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +54,9 @@ public class Douyin {
     public static void main(String[] args) throws IOException {
         String msgFromDouyin = "#比尔拉塞尔 我现在都可以打爆你们 https://v.douyin.com/JLeEkWY/ " +
                 "复制此链接，打开【抖音短视频】，直接观看视频！";
-        downloadVideo(msgFromDouyin, "/tmp/");
+        Douyin.downloadVideo(msgFromDouyin, "/tmp/");
+
+        ApiResult apiResult = Douyin.fetchVideoScheme(msgFromDouyin);
     }
 
 
@@ -64,12 +66,33 @@ public class Douyin {
      * @param shareInfo
      * @return
      */
+    public static ApiResult fetchVideoScheme(String shareInfo) {
+        try {
+            String shortUrl = extractUrl(shareInfo);
+            String originUrl = convertUrl(shortUrl);
+            String itemId = parseItemIdFromUrl(originUrl);
+            ApiResult apiBean = requestToAPI(itemId);
+            return apiBean;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static Result fetch(String shareInfo) {
         try {
             String shortUrl = extractUrl(shareInfo);
             String originUrl = convertUrl(shortUrl);
             String itemId = parseItemIdFromUrl(originUrl);
-            return getVideoUrl(itemId);
+            ApiResult apiBean = requestToAPI(itemId);
+            Result result = new Result();
+            ItemList item = apiBean.getItemList().get(0);
+            result.name = item.getShareInfo().getShareTitle();
+            String originVideoUrl = item.getVideo().getPlayAddr().getUrlList().get(0);
+            // 去水印视频转换.
+            result.videoUrl = originVideoUrl.replace("playwm", "play");
+            result.musicUrl = item.getMusic().getPlayUrl().getUri();
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -167,7 +190,7 @@ public class Douyin {
      * @return
      * @throws Exception
      */
-    public static Result getVideoUrl(String itemId) throws Exception {
+    public static ApiResult requestToAPI(String itemId) throws Exception {
         String url = API + itemId;
         HttpURLConnection httpClient =
                 (HttpURLConnection) new URL(url).openConnection();
@@ -189,15 +212,8 @@ public class Douyin {
                 response.append(line);
             }
             //print result
-            ApiBean apiBean = new Gson().fromJson(response.toString(), ApiBean.class);
-            Result result = new Result();
-            ItemList item = apiBean.getItemList().get(0);
-            result.name = item.getShareInfo().getShareTitle();
-            String originVideoUrl = item.getVideo().getPlayAddr().getUrlList().get(0);
-            // 去水印视频转换.
-            result.videoUrl = originVideoUrl.replace("playwm", "play");
-            result.musicUrl = item.getMusic().getPlayUrl().getUri();
-            return result;
+            ApiResult apiBean = new Gson().fromJson(response.toString(), ApiResult.class);
+            return apiBean;
         }
     }
 }

@@ -1,11 +1,14 @@
 
 package io.xtea.videoclean.bean;
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ApiBean {
+import java.util.List;
+
+
+// refer to https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=6842888905025506568
+public class ApiResult {
 
     @SerializedName("status_code")
     @Expose
