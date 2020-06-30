@@ -16,4 +16,4 @@
 ```java
 ApiResult apiResult = Douyin.fetchVideoScheme(msgFromDouyin);
 ```
-返回结果内容参考源代码
+返回结果内容参考源[代码](https://github.com/xtea/videoclean/blob/master/src/main/java/io/xtea/videoclean/bean/ApiResult.java)
